@@ -17,6 +17,7 @@ public class Master {
     private static ModbusMaster master;
     private static DataModbus dm = new DataModbus();
 
+    //Write Multiple Register (0x10)
     public static int inputRegister(int x){
         try {
             master.writeMultipleRegisters(dm.getSlaveID(), dm.getAddressOne(), new int[]{x});
@@ -27,6 +28,7 @@ public class Master {
         return x;
     }
 
+    // Read Input Registers (0x04)
     public static void outputRegister(){
         try {
             System.out.println("Data output "
@@ -41,9 +43,9 @@ public class Master {
             serialParameters = new SerialParameters();
             Modbus.setLogLevel(Modbus.LogLevel.LEVEL_DEBUG);
             Modbus.setLogLevel(Modbus.LogLevel.LEVEL_WARNINGS);
-            String[] dev_list = SerialPortList.getPortNames();
-            if (dev_list.length > 0) {
-                serialParameters.setDevice(dev_list[0]);
+            String[] devList = SerialPortList.getPortNames();
+            if (devList.length > 0) {
+                serialParameters.setDevice(devList[0]);
                 serialParameters.setBaudRate(SerialPort.BaudRate.BAUD_RATE_19200);
                 serialParameters.setDataBits(8);
                 serialParameters.setParity(SerialPort.Parity.NONE);
@@ -56,7 +58,6 @@ public class Master {
             master.setResponseTimeout(1000);
 
             master.connect();
-
 
             for (int i = 0; i <= 200; i++){
                 inputRegister(i);
