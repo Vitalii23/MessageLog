@@ -1,21 +1,24 @@
 package Model;
 
 public class DataModbus {
-    private int slaveID, addressOne, addressTwo, quality;
+    private int slaveID = 1,
+                addressOne = 430,
+                addressTwo  = 700,
+                quality = 14;
 
     public int getSlaveID() {
-        return 1;
+        return slaveID;
     }
 
     public int getAddressOne() {
-        return 430;
+        return addressOne;
     }
 
     public int getAddressTwo() {
-        return 700;
+        return addressTwo;
     }
 
     public int getQuality() {
-        return 14;
+        return quality;
     }
 }
