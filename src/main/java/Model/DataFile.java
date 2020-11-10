@@ -1,16 +1,48 @@
 package Model;
 
-import java.util.Date;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
+@XmlRootElement(name = "Контроллер")
+@XmlType(propOrder = {"number", "code", "period", "status",
+        "r", "s", "t", "u", "v", "w",
+        "moment", "position", "cycleCount"})
 public class DataFile {
-    int number, code, r, s, t, u, v, w, moment, position, cycleCount;
-    char status;
-    Date date;
+   private int number, code, r, s, t, u, v, w, moment, position, cycleCount;
+   private String numberS, codeS, rS, sS, tS, uS, vS, wS, momentS, positionS, cycleCountS;
+   private String status, period;
+
+    public DataFile(int number, int code, String period, String status,
+                    int r, int s, int t, int u, int v, int w,
+                    int moment, int position, int cycleCount) {
+        this.number = number;
+        this.code = code;
+        this.period = period;
+        this.status = status;
+        this.r = r;
+        this.s = s;
+        this.t = t;
+        this.u = u;
+        this.v = v;
+        this.w = w;
+        this.moment = moment;
+        this.position = position;
+        this.cycleCount = cycleCount;
+
+    }
+
+    public DataFile() {
+
+    }
+
+    //Integer
 
     public int getNumber() {
         return number;
     }
 
+    @XmlElement(name = "Номер")
     public void setNumber(int number) {
         this.number = number;
     }
@@ -19,14 +51,34 @@ public class DataFile {
         return code;
     }
 
+    @XmlElement(name = "Код_Записи")
     public void setCode(int code) {
         this.code = code;
+    }
+
+    public String getPeriod() {
+        return period;
+    }
+
+    @XmlElement(name = "Время")
+    public void setPeriod(String period) {
+        this.period = period;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    @XmlElement(name = "Статус")
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public int getR() {
         return r;
     }
 
+    @XmlElement(name = "Фаза_R")
     public void setR(int r) {
         this.r = r;
     }
@@ -35,6 +87,7 @@ public class DataFile {
         return s;
     }
 
+    @XmlElement(name = "Фаза_S")
     public void setS(int s) {
         this.s = s;
     }
@@ -43,6 +96,7 @@ public class DataFile {
         return t;
     }
 
+    @XmlElement(name = "Фаза_T")
     public void setT(int t) {
         this.t = t;
     }
@@ -51,6 +105,7 @@ public class DataFile {
         return u;
     }
 
+    @XmlElement(name = "Фаза_U")
     public void setU(int u) {
         this.u = u;
     }
@@ -59,6 +114,7 @@ public class DataFile {
         return v;
     }
 
+    @XmlElement(name = "Фаза_V")
     public void setV(int v) {
         this.v = v;
     }
@@ -67,6 +123,7 @@ public class DataFile {
         return w;
     }
 
+    @XmlElement(name = "Фаза_W")
     public void setW(int w) {
         this.w = w;
     }
@@ -75,6 +132,7 @@ public class DataFile {
         return moment;
     }
 
+    @XmlElement(name = "Момент")
     public void setMoment(int moment) {
         this.moment = moment;
     }
@@ -83,6 +141,7 @@ public class DataFile {
         return position;
     }
 
+    @XmlElement(name = "Положение")
     public void setPosition(int position) {
         this.position = position;
     }
@@ -91,23 +150,12 @@ public class DataFile {
         return cycleCount;
     }
 
+    @XmlElement(name = "Смена_Цикла")
     public void setCycleCount(int cycleCount) {
         this.cycleCount = cycleCount;
     }
 
-    public char getStatus() {
-        return status;
-    }
+    //String
 
-    public void setStatus(char status) {
-        this.status = status;
-    }
 
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
 }
