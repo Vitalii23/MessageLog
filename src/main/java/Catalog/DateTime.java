@@ -26,7 +26,7 @@ public class DateTime {
     }
 
     public String time(int high, int low){
-        return day(high, low) + ":" +
+        return day(high, low) + " день " +
                       hour(high, low) + ":" +
                       minute(high, low) + ":" +
                       second(high, low);

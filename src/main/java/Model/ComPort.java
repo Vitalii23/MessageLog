@@ -1,8 +1,20 @@
 package Model;
 
 public class ComPort {
-    int device, dataBits, stopBits;
-    String baudRate, parity;
+    private int device, dataBits, stopBits;
+    private String baudRate, parity;
+
+    public ComPort(int device, String baudRate, int dataBits, String parity, int stopBits) {
+        this.device = device;
+        this.baudRate = baudRate;
+        this.dataBits = dataBits;
+        this.parity = parity;
+        this.stopBits = stopBits;
+    }
+
+    public ComPort() {
+
+    }
 
     public int getDevice() {
         return device;
