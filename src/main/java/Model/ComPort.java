@@ -4,14 +4,6 @@ public class ComPort {
     private int device, dataBits, stopBits;
     private String baudRate, parity;
 
-    public ComPort(int device, String baudRate, int dataBits, String parity, int stopBits) {
-        this.device = device;
-        this.baudRate = baudRate;
-        this.dataBits = dataBits;
-        this.parity = parity;
-        this.stopBits = stopBits;
-    }
-
     public ComPort() {
 
     }

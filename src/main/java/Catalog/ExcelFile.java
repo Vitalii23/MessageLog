@@ -110,6 +110,8 @@ public class ExcelFile {
                 e.printStackTrace();
             }
 
+            System.out.println("Файл записан" + "\n");
+
         } catch (ParserConfigurationException | TransformerConfigurationException e) {
             e.printStackTrace();
         }

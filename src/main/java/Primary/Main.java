@@ -2,19 +2,15 @@ package Primary;
 
 import Connection.Master;
 import Model.ComPort;
-import com.intelligt.modbus.jlibmodbus.exception.ModbusIOException;
 import jssc.SerialPortList;
 
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
-
     private static Scanner comand;
     private static ComPort comPort;
     private static int number;
     private static String parameters;
-    private static ArrayList<String> arrayList;
 
     private static int run(){
         System.out.println("Добро пожаловать. Пожалуйста, введите команду\r\n" +
@@ -25,13 +21,9 @@ public class Main {
         number = comand.nextInt();
         switch (number){
             case 1:
-                try {
-                    Master master = new Master();
-                    master.start(comPort.getDevice(), comPort.getBaudRate(), comPort.getDataBits(),
-                            comPort.getParity(), comPort.getStopBits() );
-                } catch (ModbusIOException e) {
-                    e.printStackTrace();
-                }
+                Master master = new Master();
+                master.start(comPort.getDevice(), comPort.getBaudRate(), comPort.getDataBits(),
+                        comPort.getParity(), comPort.getStopBits() );
                 return run();
             case 2:
                 System.out.print("Выберите параметры подключения. (m или a): ");
@@ -72,7 +64,7 @@ public class Main {
                     return run();
 
                 } else if (parameters.equals("a")){
-                     String[] devList = SerialPortList.getPortNames();
+                    String[] devList = SerialPortList.getPortNames();
 
                     for (String d : devList){
                         System.out.print(d + "\n");
@@ -111,12 +103,9 @@ public class Main {
             return;
         }
         if (args[0].equals("start")){
-
             run();
-
         } else {
             System.out.println("Неправильно запущено программа. Попробуйте снова");
-            return;
         }
     }
 }

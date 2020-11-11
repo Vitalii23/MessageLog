@@ -18,19 +18,19 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Master {
-    private static ModbusMasterRTU master;
-    private static ExcelFile file = new ExcelFile();
-    private static DataModbus dm = new DataModbus();
-    private static DataFile dataFile = new DataFile();
-    private static MetaData metaData = new MetaData();
-    private static DateTime dateTime = new DateTime();
-    private static List<String> list = new ArrayList<String>();
-    private static ArrayList<DataFile> listArray = new ArrayList<DataFile>();
-    private static ArrayList<Integer> arrayInt;
-    private static Integer[] element;
+    private ModbusMasterRTU master;
+    private ExcelFile file = new ExcelFile();
+    private DataModbus dm = new DataModbus();
+    private DataFile dataFile = new DataFile();
+    private MetaData metaData = new MetaData();
+    private DateTime dateTime = new DateTime();
+    private List<String> list = new ArrayList<String>();
+    private ArrayList<DataFile> listArray = new ArrayList<DataFile>();
+    private ArrayList<Integer> arrayInt;
+    private Integer[] element;
 
     //Write Multiple Register (0x10)
-    private static void inputRegister(int x){
+    private void inputRegister(int x){
         try {
             master.writeMultipleRegisters(dm.getSlaveID(), dm.getAddressOne(), new int[]{x});
             System.out.println("Запись: " + x);
@@ -42,7 +42,7 @@ public class Master {
     }
 
     // Read Input Registers (0x04)
-    private static void outputRegister(int x){
+    private void outputRegister(int x){
         try {
             list.add(x, Arrays.toString(
                     master.readInputRegisters(
@@ -55,7 +55,7 @@ public class Master {
     }
 
     // Name electric drive
-    private static void nameRegister(){
+    private void nameRegister(){
         try {
 
             String nameString = Arrays.toString(master.readInputRegisters(
@@ -114,7 +114,7 @@ public class Master {
         file.writeExcel(listArray);
     }
 
-    public void start(int device, String baudRate, int dataBits, String parity, int stopBits) throws ModbusIOException {
+    public void start(int device, String baudRate, int dataBits, String parity, int stopBits) {
         try{
             SerialParameters serialParameters = new SerialParameters();
 
@@ -142,8 +142,12 @@ public class Master {
         } catch(RuntimeException | ModbusIOException | SerialPortException e){
             e.printStackTrace();
         } finally {
-            System.out.println("Файл записан");
-            master.disconnect();
+            System.out.println("Процедура окончена" + "\n");
+            try {
+                master.disconnect();
+            } catch (ModbusIOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
