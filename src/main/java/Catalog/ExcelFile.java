@@ -17,9 +17,7 @@ import java.util.ArrayList;
 
 public class ExcelFile {
 
-    private DataFile dataFile = new DataFile();
-
-    public void writeExcel(ArrayList<DataFile> list) {
+    public void writeExcel(ArrayList<DataFile> list, int name) {
         try {
             DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = builderFactory.newDocumentBuilder();
@@ -96,8 +94,8 @@ public class ExcelFile {
             DOMSource source = new DOMSource(document);
 
             try {
-                String name = "./Контроллеры/Контроллер " + dataFile.getName() + ".xml";
-                File file = new File(name);
+                String device = "./Контроллеры/Контроллер " + name + ".xml";
+                File file = new File(device);
                 File directory = file.getParentFile();
                 if (null != directory){
                     directory.mkdir();
