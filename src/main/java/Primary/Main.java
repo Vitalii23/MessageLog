@@ -1,16 +1,17 @@
 package Primary;
 
 import Connection.Master;
-import Model.ComPort;
+import com.intelligt.modbus.jlibmodbus.serial.SerialParameters;
+import com.intelligt.modbus.jlibmodbus.serial.SerialPort;
 import jssc.SerialPortList;
 
 import java.util.Scanner;
 
 public class Main {
     private static Scanner comand;
-    private static ComPort comPort;
     private static int number;
     private static String parameters;
+    private static SerialParameters serialParameters;
 
     private static int run(){
         System.out.println("Добро пожаловать. Пожалуйста, введите команду\r\n" +
@@ -22,8 +23,12 @@ public class Main {
         switch (number){
             case 1:
                 Master master = new Master();
-                master.start(comPort.getDevice(), comPort.getBaudRate(), comPort.getDataBits(),
-                        comPort.getParity(), comPort.getStopBits() );
+
+                master.start(serialParameters.getDevice(),
+                        SerialPort.BaudRate.getBaudRate(serialParameters.getBaudRate()),
+                             serialParameters.getDataBits(),
+                             serialParameters.getStopBits(),
+                             serialParameters.getParity());
                 return run();
             case 2:
                 System.out.print("Выберите параметры подключения. (m или a): ");
@@ -38,27 +43,27 @@ public class Main {
 
                     if (devList.length > 0) {
 
-                        comPort = new ComPort();
+                        serialParameters = new SerialParameters();
 
                         comand = new Scanner(System.in);
                         System.out.print("Введите номер порта: " );
-                        comPort.setDevice(comand.nextInt());
+                        serialParameters.setDevice(comand.nextLine());
 
                         comand = new Scanner(System.in);
                         System.out.print("Бит в секунду: ");
-                        comPort.setBaudRate(comand.nextLine());
+                        serialParameters.setBaudRate(SerialPort.BaudRate.valueOf(comand.nextLine()));
 
                         comand = new Scanner(System.in);
                         System.out.print("Биты данных: ");
-                        comPort.setDataBits(comand.nextInt());
+                        serialParameters.setDataBits(comand.nextInt());
 
                         comand = new Scanner(System.in);
                         System.out.print("Четность: ");
-                        comPort.setParity(comand.nextLine());
+                        serialParameters.setParity(SerialPort.Parity.valueOf(comand.nextLine()));
 
                         comand = new Scanner(System.in);
                         System.out.print("Стоп биты: ");
-                        comPort.setStopBits(comand.nextInt());
+                        serialParameters.setStopBits(comand.nextInt());
                     }
                     System.out.println("Параметры записаны" + "\n");
                     return run();
@@ -71,15 +76,15 @@ public class Main {
                     }
                     comand = new Scanner(System.in);
 
-                    comPort = new ComPort();
+                    serialParameters = new SerialParameters();
 
                     comand = new Scanner(System.in);
                     System.out.print("Введите номер порта: " );
-                    comPort.setDevice(comand.nextInt());
-                    comPort.setBaudRate("BAUD_RATE_19200");
-                    comPort.setDataBits(8);
-                    comPort.setParity("NONE");
-                    comPort.setStopBits(1);
+                    serialParameters.setDevice(comand.nextLine());
+                    serialParameters.setBaudRate(SerialPort.BaudRate.BAUD_RATE_19200);
+                    serialParameters.setDataBits(8);
+                    serialParameters.setParity(SerialPort.Parity.NONE);
+                    serialParameters.setStopBits(1);
 
                     System.out.println("Параметры автоматически записаны" + "\n");
                     return run();

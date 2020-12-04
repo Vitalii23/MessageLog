@@ -1,10 +1,10 @@
 package Model;
 
 public class DataFile {
-   private int number, code, r, s, t, u, v, w, moment, position, cycleCount, name;
-   private String status, period;
+   private int number, r, s, t, u, v, w, moment, position, cycleCount, name;
+   private String status, period, code;
 
-    public DataFile(int number, int code, String period, String status,
+    public DataFile(int number, String code, String period, String status,
                     int r, int s, int t, int u, int v, int w,
                     int moment, int position, int cycleCount) {
         this.number = number;
@@ -35,11 +35,11 @@ public class DataFile {
         this.number = number;
     }
 
-    public int getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(int code) {
+    public void setCode(String code) {
         this.code = code;
     }
 
