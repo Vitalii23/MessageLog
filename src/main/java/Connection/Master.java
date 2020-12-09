@@ -1,6 +1,5 @@
 package Connection;
 
-import Catalog.StatusFile;
 import Function.DateTime;
 import Catalog.XlsFile;
 import Function.DecodingRegister;
@@ -21,7 +20,6 @@ import java.util.List;
 
 public class Master {
     private ModbusMasterRTU master;
-    private StatusFile status = new StatusFile();
     private XlsFile xls = new XlsFile();
     //private XmlFile xml = new XmlFile();
     private DataModbus dm = new DataModbus();
@@ -107,8 +105,8 @@ public class Master {
                 master = new ModbusMasterRTU(serialParameters);
                 master.setResponseTimeout(1000);
                 master.connect();
-                run(false);
                 runName(false);
+                run(false);
             } catch (SerialPortException | ModbusIOException ex) {
                 ex.printStackTrace();
                 restart();
@@ -164,8 +162,24 @@ public class Master {
     //Write file data
     private void writeFile() {
         //xml.writeXml(listArray, dataFile.getName());
-        xls.writeXls(dataFiles, dataFile.getName());
-        status.writeStatus(metaDataList, dataFile.getName());
+        xls.writeXls(dataFiles, metaDataList, dataFile.getName());
+    }
+
+    private DataFile getDataFile(){
+        return new DataFile(
+                dataFile.getNumber(),
+                dataFile.getCode(),
+                dataFile.getPeriod(),
+                dataFile.getStatus(),
+                dataFile.getR(),
+                dataFile.getS(),
+                dataFile.getT(),
+                dataFile.getU(),
+                dataFile.getV(),
+                dataFile.getW(),
+                dataFile.getMoment(),
+                dataFile.getPosition(),
+                dataFile.getCycleCount());
     }
 
     // Array write data
@@ -199,31 +213,19 @@ public class Master {
         dataFile.setPosition(element[i] = arrayInt.get(12)); // Position
         dataFile.setCycleCount(element[i] = arrayInt.get(13)); // Cycle Counter
 
-
         metaDataList.add(decoding.getMetaData());
 
-        dataFiles.add(
-                new DataFile(
-                        dataFile.getNumber(),
-                        dataFile.getCode(),
-                        dataFile.getPeriod(),
-                        dataFile.getStatus(),
-                        dataFile.getR(),
-                        dataFile.getS(),
-                        dataFile.getT(),
-                        dataFile.getU(),
-                        dataFile.getV(),
-                        dataFile.getW(),
-                        dataFile.getMoment(),
-                        dataFile.getPosition(),
-                        dataFile.getCycleCount()));
+        dataFiles.add(getDataFile());
     }
 
     private void runName(boolean flag){
         if (flag == true){
             nameRegister();
         } else {
-            nameRegister();
+            if (dataFile.getName() == 0){
+                nameRegister();
+            }
+            System.out.println("Имя контроллера: " + dataFile.getName());
         }
     }
 

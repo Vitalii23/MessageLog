@@ -1,6 +1,7 @@
 package Catalog;
 
 import Model.DataFile;
+import Model.MetaData;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
 
@@ -13,7 +14,7 @@ public class XlsFile {
 
     private Cell cell;
     private Row row;
-    private int rowNum = 0;
+    private int controllerNum = 0, statusNum = 0;
 
     private static HSSFCellStyle createStyle(HSSFWorkbook workbook) {
         HSSFFont font = workbook.createFont();
@@ -43,14 +44,17 @@ public class XlsFile {
         return style;
     }
 
-    public void writeXls(ArrayList<DataFile> list, int name) {
+    public void writeXls(ArrayList<DataFile> contoller, ArrayList<MetaData> metaData, int name) {
         try {
+            System.out.println("Идет записи файла. Пожалуйста, ждите");
+
             HSSFWorkbook workbook = new HSSFWorkbook();
-            HSSFSheet sheet = workbook.createSheet("Контроллеры");
+            HSSFSheet controllerSheet = workbook.createSheet("Контроллеры");
+            HSSFSheet statusSheet = workbook.createSheet("Регистер Статуса");
 
             HSSFCellStyle style = createStyle(workbook);
 
-            row = sheet.createRow(rowNum);
+            row = controllerSheet.createRow(controllerNum);
 
             cell = row.createCell(0, CellType.STRING);
             cell.setCellValue("Номер");
@@ -106,9 +110,9 @@ public class XlsFile {
 
             HSSFFormulaEvaluator.evaluateAllFormulaCells(workbook);
 
-            for (DataFile cList : list){
-                rowNum++;
-                row = sheet.createRow(rowNum);
+            for (DataFile cList : contoller){
+                controllerNum++;
+                row = controllerSheet.createRow(controllerNum);
                 style.setAlignment(HorizontalAlignment.CENTER);
 
                 cell = row.createCell(0, CellType.STRING);
@@ -166,7 +170,71 @@ public class XlsFile {
                 HSSFFormulaEvaluator.evaluateAllFormulaCells(workbook);
 
                 for(int i = 0; i < 13; i++) {
-                    sheet.autoSizeColumn(i);
+                    controllerSheet.autoSizeColumn(i);
+                }
+            }
+
+            row = statusSheet.createRow(statusNum);
+
+            cell = row.createCell(0, CellType.STRING);
+            cell.setCellValue("Номер");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(1, CellType.STRING);
+            cell.setCellValue("Состояние ЭП ТПА");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(2, CellType.STRING);
+            cell.setCellValue("Калибровка конечных положений");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(3, CellType.STRING);
+            cell.setCellValue("Источник команд");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(4, CellType.STRING);
+            cell.setCellValue("Последняя команда");
+            cell.setCellStyle(style);
+
+            cell = row.createCell(5, CellType.STRING);
+            cell.setCellValue("Причина остановки ЭП");
+            cell.setCellStyle(style);
+
+            HSSFFormulaEvaluator.evaluateAllFormulaCells(workbook);
+
+            for (MetaData mList : metaData) {
+                statusNum++;
+                row = statusSheet.createRow(statusNum);
+                style.setAlignment(HorizontalAlignment.CENTER);
+
+                cell = row.createCell(0, CellType.STRING);
+                cell.setCellValue(statusNum - 1);
+                cell.setCellStyle(style);
+
+                cell = row.createCell(1, CellType.STRING);
+                cell.setCellValue(mList.getEd());
+                cell.setCellStyle(style);
+
+                cell = row.createCell(2, CellType.STRING);
+                cell.setCellValue(mList.getCalibration());
+                cell.setCellStyle(style);
+
+                cell = row.createCell(3, CellType.STRING);
+                cell.setCellValue(mList.getSourceCommand());
+                cell.setCellStyle(style);
+
+                cell = row.createCell(4, CellType.STRING);
+                cell.setCellValue(mList.getLastCommand());
+                cell.setCellStyle(style);
+
+                cell = row.createCell(5, CellType.STRING);
+                cell.setCellValue(mList.getStopping());
+                cell.setCellStyle(style);
+
+                HSSFFormulaEvaluator.evaluateAllFormulaCells(workbook);
+
+                for (int i = 0; i < 6; i++) {
+                    statusSheet.autoSizeColumn(i);
                 }
             }
 
