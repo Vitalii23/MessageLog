@@ -1,0 +1,10 @@
+Connection\Master.class
+Model\DataFile.class
+Function\DateTime.class
+Model\DataModbus.class
+Primary\Main.class
+Function\DecodingStatus.class
+Catalog\XlsFile.class
+Model\MetaData.class
+Catalog\XmlFile.class
+Function\DecodingRegister.class
