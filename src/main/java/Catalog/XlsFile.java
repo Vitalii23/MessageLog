@@ -6,9 +6,7 @@ import me.tongfei.progressbar.ProgressBar;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 public class XlsFile {
@@ -16,6 +14,26 @@ public class XlsFile {
     private Cell cell;
     private Row row;
     private int controllerNum = 0, statusNum = 0;
+
+    private File getFile (File file){
+        return file;
+    }
+
+    private void saveDataFile(String name, File file, HSSFWorkbook workbook){
+        try {
+            String device = "./Контроллеры/Контроллер " + name + ".xls";
+            file = new File(device);
+            File directory = file.getParentFile();
+            if (null != directory){
+                directory.mkdir();
+            }
+            FileOutputStream outFile = new FileOutputStream(file);
+            workbook.write(outFile);
+        } catch (IOException e) {
+            System.out.print("Ошибка записи файла" + "\n");
+            e.printStackTrace();
+        }
+    }
 
     private static HSSFCellStyle createStyle(HSSFWorkbook workbook) {
         HSSFFont font = workbook.createFont();
@@ -47,7 +65,7 @@ public class XlsFile {
 
     public void writeXls(ArrayList<DataFile> controller, ArrayList<MetaData> metaData, int name, String version) {
         try  {
-            ProgressBar pb = new ProgressBar("Данные контролера", 201);
+            ProgressBar pb = new ProgressBar("Данные контроллера", 201);
             System.out.println("Идет записи файла. Пожалуйста, ждите");
 
             HSSFWorkbook workbook = new HSSFWorkbook();

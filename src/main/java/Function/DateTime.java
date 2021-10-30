@@ -4,7 +4,6 @@ public class DateTime {
 
     int d, h, m, s;
 
-
     private double mod(double high, double low){
         return (low + high * 65535) % (3600 * 2400);
     }
@@ -38,10 +37,12 @@ public class DateTime {
 
     private int second(double high, double low){
         int y1 = (int) high, y2 = (int) low;
+
         int x1 = (y2 + y1 * 65535);
         int x2 = 100 * mathFloor(d) * 24 * 3600;
         int x3 = 100 * mathFloor(h) * 3600;
         int x4 = (100 * mathFloor(m) * 60);
+
         s = (x1 - x2 - x3 - x4) / 100;
         return s;
     }

@@ -1,5 +1,8 @@
 package Controller;
 
+import Logging.LogWriter;
+import com.intelligt.modbus.jlibmodbus.serial.SerialParameters;
+import com.intelligt.modbus.jlibmodbus.serial.SerialPort;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -11,8 +14,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class SettingController {
+public class SettingController implements ComPortImpl{
     private String namePort, baudRate, dataBits, parity, stopBits;
+    private SerialParameters serialParameters = new SerialParameters();
+    private LogWriter logWriter = new LogWriter();
+    private final File file = new File("./Comport/", "config.ini");
 
     @FXML
     private ComboBox<String> nameComboBoxId;
@@ -38,7 +44,6 @@ public class SettingController {
     @FXML
     void acceptButtonAction(ActionEvent event) {
         try {
-            File file = new File("./Comport/", "config.ini");
             File directory = file.getParentFile();
             if (null != directory){
                 directory.mkdir();
@@ -48,17 +53,19 @@ public class SettingController {
             Wini ini = new Wini(file);
 
             ini.put("Setting", "name", namePort);
-            ini.put("Setting", "baudRate", baudRate);
-            ini.put("Setting", "dataBits", dataBits);
+            ini.put("Setting", "baudRate", String.valueOf(baudRate));
+            ini.put("Setting", "dataBits", String.valueOf(dataBits));
             ini.put("Setting", "parity", parity);
-            ini.put("Setting", "stopBits", stopBits);
+            ini.put("Setting", "stopBits", String.valueOf(stopBits));
+
+            setComPort(serialParameters);
 
             fos.flush();
             fos.close();
             ini.store();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logWriter.write(e);
         }
         Stage stage = (Stage) acceptButtonId.getScene().getWindow();
         stage.close();
@@ -97,7 +104,6 @@ public class SettingController {
 
     @FXML
     void initialize(){
-        File file = new File("./Comport/", "config.ini");
 
         nameComboBoxId.getItems().addAll("COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8",
                 "COM9", "COM10", "COM11", "COM12", "COM13", "COM14", "COM15");
@@ -107,28 +113,40 @@ public class SettingController {
         stopBitsComboBoxId.getItems().addAll(1, 2);
 
         if (file.getAbsoluteFile().length() != 0){
-            System.out.println("true");
-            try {
-                Wini ini = new Wini(file);
 
-                String namePort = ini.get("Setting", "name", String.class);
-                int baudRate = ini.get("Setting", "baudRate", int.class);
-                int dataBits = ini.get("Setting", "dataBits", int.class);
-                String parity = ini.get("Setting", "parity", String.class);
-                int stopBits = ini.get("Setting", "stopBits", int.class);
+            getDataFile(file);
 
-                nameComboBoxId.setValue(namePort);
-                baudRateComboBoxId.setValue(baudRate);
-                dataBitsComboBoxId.setValue(dataBits);
-                parityComboBoxId.setValue(parity);
-                stopBitsComboBoxId.setValue(stopBits);
+            nameComboBoxId.setValue(namePort);
+            baudRateComboBoxId.setValue(Integer.parseInt(baudRate));
+            dataBitsComboBoxId.setValue(Integer.parseInt(dataBits));
+            parityComboBoxId.setValue(parity);
+            stopBitsComboBoxId.setValue(Integer.parseInt(stopBits));
 
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+            setComPort(serialParameters);
         }
     }
 
+    @Override
+    public void setComPort(SerialParameters comPort) {
+        comPort.setDevice(namePort);
+        comPort.setBaudRate(SerialPort.BaudRate.getBaudRate(Integer.parseInt(baudRate)));
+        comPort.setDataBits(Integer.parseInt(dataBits));
+        comPort.setParity(SerialPort.Parity.valueOf(parity));
+        comPort.setStopBits(Integer.parseInt(stopBits));
+    }
+
+    @Override
+    public void getDataFile(File file) {
+        try {
+            Wini ini = new Wini(file);
+
+            namePort = ini.get("Setting", "name", String.class);
+            baudRate = ini.get("Setting", "baudRate", String.class);
+            dataBits = ini.get("Setting", "dataBits", String.class);
+            parity = ini.get("Setting", "parity", String.class);
+            stopBits = ini.get("Setting", "stopBits", String.class);
+        } catch (IOException e) {
+            logWriter.write(e);
+        }
+    }
 }

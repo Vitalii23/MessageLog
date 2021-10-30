@@ -15,11 +15,17 @@ import com.intelligt.modbus.jlibmodbus.exception.ModbusProtocolException;
 import com.intelligt.modbus.jlibmodbus.master.ModbusMasterRTU;
 import com.intelligt.modbus.jlibmodbus.serial.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
-public class Master {
+public class Master implements MasterModbusImpl {
     private ModbusMasterRTU master;
     private final XlsFile xls = new XlsFile();
     //private XmlFile xml = new XmlFile();
@@ -32,14 +38,40 @@ public class Master {
     private final List<String> list = new ArrayList<String>();
     private final ArrayList<DataFile> dataFiles = new ArrayList<DataFile>();
     private final ArrayList<MetaData> metaDataList = new ArrayList<MetaData>();
+    static Logger logger = Logger.getLogger("MyLog");
+    static FileHandler fileHandler;
     private ArrayList<Integer> arrayInt;
     private Integer[] element;
     private jssc.SerialPort port;
     private SerialParameters serialParameters;
-    private int counter, record = 200, majorInt, patchInt, address;
+    private int counter;
+    private int record = 200;
+    private int address;
 
-    //Write Multiple Register (0x10)
-    private void inputRegister(int x){
+    static {
+        try {
+            fileHandler = new FileHandler("./Exception/error.log");
+            logger.addHandler(fileHandler);
+            SimpleFormatter formatter = new SimpleFormatter();
+            fileHandler.setFormatter(formatter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void errorCheck(Exception e, String function){
+        File file = new File("./Exception/error.log");
+        File directory = file.getParentFile();
+        if (null != directory){
+            directory.mkdir();
+        }
+
+        logger.log(Level.WARNING, "Function: " + function +"\n"+
+                "Error: " + e);
+    }
+
+    @Override
+    public void inputRegister(int x){
         try {
             master.writeMultipleRegisters(dm.getSlaveID(), dm.getAddressOne(), new int[]{x});
             System.out.println("Запись: " + x);
@@ -47,6 +79,9 @@ public class Master {
             outputRegister(x);
         } catch (ModbusProtocolException | ModbusNumberException | ModbusIOException | InterruptedException e) {
             System.err.println("inputRegister: Обрыв связи с контроллером");
+
+            errorCheck(e, "inputRegister");
+
             try {
                 master.disconnect();
             } catch (ModbusIOException ex) {
@@ -56,8 +91,8 @@ public class Master {
         }
     }
 
-    // Read Input Registers (0x04)
-    private void outputRegister(int x){
+    @Override
+    public void outputRegister(int x){
         try {
             list.add(x, Arrays.toString(
                     master.readInputRegisters(
@@ -66,17 +101,21 @@ public class Master {
             Thread.sleep(30);
         } catch (ModbusProtocolException | ModbusNumberException | ModbusIOException | InterruptedException e) {
             System.err.println("outputRegister: Обрыв связи с контроллером");
+
+            errorCheck(e, "outputRegister");
+
             try {
                 master.disconnect();
             } catch (ModbusIOException ex) {
                 ex.printStackTrace();
             }
+
             restart();
         }
     }
 
-    // Name electric drive
-    private void nameRegister(){
+    @Override
+    public void nameRegister(){
         try {
             String nameString = Arrays.toString(
                     master.readInputRegisters(
@@ -87,22 +126,27 @@ public class Master {
             Thread.sleep(30);
         } catch (ModbusProtocolException | ModbusIOException | ModbusNumberException | InterruptedException e) {
             System.err.println("nameRegister: Обрыв связи с контроллером");
+
+            errorCheck(e, "nameRegister");
+
             try {
                 master.disconnect();
             } catch (ModbusIOException ex) {
                 ex.printStackTrace();
             }
+
             restart();
         }
     }
 
+    @Override
     public void versionRegister(){
         try {
             String majorString = Arrays.toString(
                     master.readInputRegisters(
                             dm.getSlaveID(), 10, 1));
             majorString = majorString.replaceAll("[\\[\\]]", "");
-            majorInt = Integer.parseInt(majorString);
+            int majorInt = Integer.parseInt(majorString);
 
             Thread.sleep(30);
 
@@ -110,7 +154,7 @@ public class Master {
                     master.readInputRegisters(
                             dm.getSlaveID(), 12, 1));
             patchString = patchString.replaceAll("[\\[\\]]", "");
-            patchInt = Integer.parseInt(patchString);
+            int patchInt = Integer.parseInt(patchString);
 
             byte majorByte = (byte) majorInt;
             byte patchByte = (byte) patchInt;
@@ -118,7 +162,7 @@ public class Master {
             int major = Integer.parseInt(String.valueOf(majorByte));
             int patch = Integer.parseInt(String.valueOf(patchByte));
 
-            dataFile.setVersion(major + "." + patch);
+            dataFile.setVersion(major + "." + String.format("%02d", patch));
 
             switch (major){
                 case 1:
@@ -136,6 +180,9 @@ public class Master {
             }
         } catch (ModbusProtocolException | ModbusIOException | ModbusNumberException | InterruptedException e) {
             System.err.println("versionRegister: Обрыв связи с контроллером");
+
+            errorCheck(e, "versionRegister");
+
             try {
                 master.disconnect();
             } catch (ModbusIOException ex) {
@@ -145,8 +192,77 @@ public class Master {
         }
     }
 
-    // Restart connect program
-    private void restart() {
+    @Override
+    public void dateRegister(){
+        try {
+            String numberString = Arrays.toString(
+                    master.readInputRegisters(
+                            dm.getSlaveID(), 101, 1));
+            numberString = numberString.replaceAll("[\\[\\]]", "");
+
+            Thread.sleep(30);
+
+            String monthString = Arrays.toString(
+                    master.readInputRegisters(
+                            dm.getSlaveID(), 102, 1));
+            monthString = monthString.replaceAll("[\\[\\]]", "");
+
+            Thread.sleep(30);
+
+            String yearString = Arrays.toString(
+                    master.readInputRegisters(
+                            dm.getSlaveID(), 103, 1));
+            yearString = yearString.replaceAll("[\\[\\]]", "");
+
+            Thread.sleep(30);
+
+            String dateSymbols = numberString + "." + monthString  + "." + yearString;
+
+            dataFile.setDate(dateSymbols);
+
+        } catch (ModbusProtocolException | ModbusIOException | ModbusNumberException | InterruptedException e) {
+            System.err.println("dateRegister: Обрыв связи с контроллером");
+
+            errorCheck(e, "dateRegister");
+
+            try {
+                master.disconnect();
+            } catch (ModbusIOException ex) {
+                ex.printStackTrace();
+            }
+            restart();
+        }
+    }
+
+    @Override
+    public void typeRegister() {
+        try {
+            String typeString = Arrays.toString(
+                    master.readInputRegisters(
+                            dm.getSlaveID(), 101, 1));
+            typeString = typeString.replaceAll("[\\[\\]]", "");
+
+            int typeInt = Integer.parseInt(typeString);
+
+            dataFile.setType(typeInt);
+
+        } catch (ModbusProtocolException | ModbusIOException | ModbusNumberException e) {
+            System.err.println("dateRegister: Обрыв связи с контроллером");
+
+            errorCheck(e, "dateRegister");
+
+            try {
+                master.disconnect();
+            } catch (ModbusIOException ex) {
+                ex.printStackTrace();
+            }
+
+            restart();
+        }
+    }
+
+    @Override
+    public void restart() {
        port = new jssc.SerialPort(serialParameters.getDevice());
         if (!port.isOpened()) {
             try {
@@ -155,9 +271,11 @@ public class Master {
                 master = new ModbusMasterRTU(serialParameters);
                 master.setResponseTimeout(1000);
                 master.connect();
-                runVersion(false);
-                runName(false);
-                run(false);
+                regVersion(false);
+                regName(false);
+                regDate(false);
+                regType(false);
+                start(false);
             } catch (SerialPortException | ModbusIOException ex) {
                 ex.printStackTrace();
                 restart();
@@ -165,19 +283,8 @@ public class Master {
         }
     }
 
-    // Converter it ArrayList
-    private ArrayList<Integer> arrayStringToIntegerArrayList(String arrayString){
-        String removedBrackets = arrayString.substring(1, arrayString.length() - 1);
-        String[] individualNumbers = removedBrackets.split(",");
-        ArrayList<Integer> integerArrayList = new ArrayList<>();
-        for(String numberString : individualNumbers){
-            integerArrayList.add(Integer.parseInt(numberString.trim()));
-        }
-        return integerArrayList;
-    }
-
-    public void start(String device, int baudRate,
-                      int dataBits, int stopBits, SerialPort.Parity parity) {
+    @Override
+    public void settingModbus(String device, int baudRate, int dataBits, int stopBits, SerialPort.Parity parity) {
         try{
             serialParameters = new SerialParameters();
 
@@ -195,9 +302,9 @@ public class Master {
             master.setResponseTimeout(1000);
             master.connect();
 
-            runVersion(true);
-            runName(true);
-            run(true);
+            regVersion(true);
+            regName(true);
+            start(true);
 
         } catch(RuntimeException | ModbusIOException | SerialPortException e){
             e.getMessage();
@@ -211,12 +318,23 @@ public class Master {
         }
     }
 
-    //Write file data
-    private void writeFile() {
+    @Override
+    public void write() {
         //xml.writeXml(listArray, dataFile.getName());
-        MainController main = new MainController();
-        main.dataFiles(dataFiles);
-        xls.writeXls(dataFiles, metaDataList, dataFile.getName(), dataFile.getVersion());
+        MainController controller = new MainController();
+        controller.getData(dataFiles, metaDataList);
+        //xls.writeXls(dataFiles, metaDataList, dataFile.getName(), dataFile.getVersion());
+    }
+
+    // Converter it ArrayList
+    private ArrayList<Integer> arrayStringToIntegerArrayList(String arrayString){
+        String removedBrackets = arrayString.substring(1, arrayString.length() - 1);
+        String[] individualNumbers = removedBrackets.split(",");
+        ArrayList<Integer> integerArrayList = new ArrayList<>();
+        for(String numberString : individualNumbers){
+            integerArrayList.add(Integer.parseInt(numberString.trim()));
+        }
+        return integerArrayList;
     }
 
     private DataFile getDataFile(){
@@ -236,8 +354,8 @@ public class Master {
                 dataFile.getCycleCount());
     }
 
-    // Array write data
-    private void arrayWrite(int i){
+
+    public void arrayWrite(int i){
         inputRegister(i);
         arrayInt = arrayStringToIntegerArrayList(list.get(i));
 
@@ -272,11 +390,11 @@ public class Master {
         dataFiles.add(getDataFile());
     }
 
-    private void runName(boolean flag){
+    @Override
+    public void regName(boolean flag){
         if (dataFile.getName() == 0){
             nameRegister();
         }
-
         if (flag){
             nameRegister();
         } else {
@@ -284,11 +402,11 @@ public class Master {
         }
     }
 
-    private void runVersion(boolean flag){
+    @Override
+    public void regVersion(boolean flag){
         if (dataFile.getVersion() == null){
             versionRegister();
         }
-
         if (flag){
             versionRegister();
         } else {
@@ -296,14 +414,38 @@ public class Master {
         }
     }
 
-    // Сycle for normal and for restart
-    private void run(boolean flag){
+    @Override
+    public void regDate(boolean flag) {
+        if (dataFile.getDate() == null){
+            dateRegister();
+        }
+        if (flag){
+            dateRegister();
+        } else {
+            System.out.println("Дата: " + dataFile.getDate());
+        }
+    }
+
+    @Override
+    public void regType(boolean flag) {
+        if (dataFile.getType() == 0){
+            typeRegister();
+        }
+        if (flag){
+            typeRegister();
+        } else {
+            System.out.println("Тип блока: " + dataFile.getType());
+        }
+    }
+
+    @Override
+    public void start(boolean flag) {
         try {
             for (int i = 0; i <= record; i++) {
-                if (flag== true){
+                if (flag){
                     arrayWrite(i);
                     if (counter == record){
-                        writeFile();
+                        write();
                         master.disconnect();
                         System.exit(0);
                     } else {
@@ -313,7 +455,7 @@ public class Master {
                     for (int k = counter; k <= record; k++){
                         arrayWrite(k);
                         if (counter == record){
-                            writeFile();
+                            write();
                             master.disconnect();
                             System.exit(0);
                         } else {

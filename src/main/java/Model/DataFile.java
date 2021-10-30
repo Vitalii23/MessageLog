@@ -1,8 +1,8 @@
 package Model;
 
 public class DataFile {
-   private int number, r, s, t, u, v, w, moment, position, cycleCount, name;
-   private String status, period, code, version;
+   private int number, r, s, t, u, v, w, moment, position, cycleCount, name, type;
+   private String status, period, code, version, date;
 
     public DataFile(int number, String code, String period, String status,
                     int r, int s, int t, int u, int v, int w,
@@ -145,5 +145,21 @@ public class DataFile {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

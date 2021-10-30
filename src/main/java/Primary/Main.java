@@ -26,7 +26,7 @@ public class Main {
             case 1:
                 Master master = new Master();
 
-                master.start(serialParameters.getDevice(),
+                master.settingModbus(serialParameters.getDevice(),
                              serialParameters.getBaudRate(),
                              serialParameters.getDataBits(),
                              serialParameters.getStopBits(),

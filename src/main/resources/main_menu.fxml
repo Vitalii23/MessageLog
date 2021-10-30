@@ -101,7 +101,7 @@
                      <content>
                         <TableView fx:id="registerStatusTableViewId" onSort="#registerStatusTableViewOnSort" prefHeight="776.0" prefWidth="1010.0">
                            <columns>
-                              <TableColumn fx:id="numberRegistrTableColumnId" prefWidth="75.0" text="Номер" />
+                              <TableColumn fx:id="numberRegisterTableColumnId" prefWidth="75.0" text="Номер" />
                               <TableColumn fx:id="edTableColumnId" prefWidth="160.0" text="Состояние ЭП ТПА" />
                               <TableColumn fx:id="calibrationTableColumnId" prefWidth="270.0" text="Калибровка конечных положений" />
                               <TableColumn fx:id="sourceCommandTableColumnId" prefWidth="140.0" text="Источник команд" />
